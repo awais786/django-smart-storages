@@ -98,7 +98,17 @@ django-smart-storages/
 
 ## Installation & Usage
 
-### Installation
+### Installation from Source
+```bash
+# Clone the repository
+git clone https://github.com/awais786/django-smart-storages.git
+cd django-smart-storages
+
+# Install in development mode
+pip install -e .
+```
+
+### Installation from PyPI (once published)
 ```bash
 pip install django-smart-storages
 ```
@@ -167,7 +177,7 @@ class Article(models.Model):
 ## Future Enhancements
 
 Potential areas for expansion:
-- Support for other cloud storage backends (Azure, GCP)
+- Support for other cloud storage backends (Azure Blob Storage, Google Cloud Storage)
 - Async/await support for Django 4.x+
 - Built-in monitoring and logging
 - Performance optimization for large file operations
