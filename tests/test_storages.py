@@ -5,11 +5,11 @@ from smart_storages.s3_backend import BaseSpecialS3Storage
 
 
 class ImportExportS3Storage(BaseSpecialS3Storage):
-    setting_name = "COURSE_IMPORT_EXPORT_BUCKET"
+    storage_key = "COURSE_IMPORT_EXPORT_BUCKET"
 
 
 class AnalyticsS3Storage(BaseSpecialS3Storage):
-    setting_name = "ANALYTICS_BUCKET"
+    storage_key = "ANALYTICS_BUCKET"
 
 
 class TestSpecialStorages(TestCase):
@@ -28,7 +28,7 @@ class TestSpecialStorages(TestCase):
     def test_custom_bucket_is_used(self):
         """
         The class should pick up its bucket name from the setting defined
-        in `setting_name`.
+        in `storage_key`.
         """
         storage = ImportExportS3Storage()
         self.assertEqual(storage.bucket_name, "import-export-bucket")
