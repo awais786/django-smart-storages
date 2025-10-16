@@ -31,10 +31,15 @@ class SmartS3Storage(S3Boto3Storage):
         settings_override.setdefault('secret_key', module_config.get('secret_key'))
         settings_override.setdefault('region_name', module_config.get('region_name'))
         
-        # Remove None values
-        settings_override = {k: v for k, v in settings_override.items() if v is not None}
+        # Only remove None values for keys that shouldn't be passed as None
+        # Keep None for optional parameters like default_acl which might be intentionally None
+        filtered_settings = {}
+        for key, value in settings_override.items():
+            # Only include non-None values, but keep empty strings
+            if value is not None:
+                filtered_settings[key] = value
         
-        super().__init__(**settings_override)
+        super().__init__(**filtered_settings)
 
 
 class MediaStorage(SmartS3Storage):

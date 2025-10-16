@@ -64,3 +64,27 @@ class ConfigTestCase(TestCase):
         self.assertIn('bucket_name', config)
         self.assertIn('location', config)
         self.assertIn('default_acl', config)
+
+    @override_settings(
+        AWS_STORAGE_BUCKET_NAME='default-bucket',
+        AWS_LOCATION='default/',
+        AWS_DEFAULT_ACL='private',
+        AWS_ACCESS_KEY_ID='default-key',
+        AWS_SECRET_ACCESS_KEY='default-secret',
+        SMART_STORAGE_BUCKETS={
+            'partial': {
+                'bucket_name': 'partial-bucket',
+                # Other settings should fall back to defaults
+            },
+        }
+    )
+    def test_get_bucket_config_partial_module_config(self):
+        """Test getting config for a module with partial configuration."""
+        config = get_bucket_config('partial')
+        # Module-specific bucket name should be used
+        self.assertEqual(config['bucket_name'], 'partial-bucket')
+        # Other settings should fall back to AWS defaults
+        self.assertEqual(config['location'], 'default/')
+        self.assertEqual(config['default_acl'], 'private')
+        self.assertEqual(config['access_key'], 'default-key')
+        self.assertEqual(config['secret_key'], 'default-secret')

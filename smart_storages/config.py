@@ -33,15 +33,27 @@ def get_bucket_config(module_name):
     """
     buckets_config = getattr(settings, 'SMART_STORAGE_BUCKETS', {})
     
+    # Get default configuration
+    default_config = {
+        'bucket_name': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None),
+        'location': getattr(settings, 'AWS_LOCATION', ''),
+        'default_acl': getattr(settings, 'AWS_DEFAULT_ACL', None),
+        'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', None),
+        'secret_key': getattr(settings, 'AWS_SECRET_ACCESS_KEY', None),
+        'region_name': getattr(settings, 'AWS_S3_REGION_NAME', None),
+    }
+    
     if module_name not in buckets_config:
         # Fall back to default AWS settings if module not configured
-        return {
-            'bucket_name': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None),
-            'location': getattr(settings, 'AWS_LOCATION', ''),
-            'default_acl': getattr(settings, 'AWS_DEFAULT_ACL', None),
-        }
+        return default_config
     
-    return buckets_config[module_name]
+    # Merge module-specific config with defaults (module config takes precedence)
+    module_config = buckets_config[module_name].copy()
+    for key, value in default_config.items():
+        if key not in module_config:
+            module_config[key] = value
+    
+    return module_config
 
 
 def get_default_bucket_config():

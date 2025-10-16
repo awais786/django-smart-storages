@@ -72,3 +72,23 @@ class CreateStorageClassTestCase(TestCase):
         self.assertEqual(call_kwargs['location'], 'override-location')
         # Other defaults should still apply
         self.assertEqual(call_kwargs['default_acl'], 'private')
+
+    def test_create_storage_class_sanitizes_module_name(self):
+        """Test that module name is sanitized for class name."""
+        # Create storage with special characters in module name
+        CustomStorage = create_storage_class('my-custom-storage')
+        # Should replace hyphens with underscores and capitalize
+        self.assertEqual(CustomStorage.__name__, 'My_custom_storageStorage')
+        self.assertEqual(CustomStorage.module_name, 'my-custom-storage')
+        
+    def test_create_storage_class_handles_numeric_prefix(self):
+        """Test that numeric prefix is handled correctly."""
+        CustomStorage = create_storage_class('123uploads')
+        # Should prepend underscore if starts with digit
+        self.assertEqual(CustomStorage.__name__, '_123uploadsStorage')
+        self.assertEqual(CustomStorage.module_name, '123uploads')
+        
+    def test_create_storage_class_empty_module_name(self):
+        """Test that empty module name raises ValueError."""
+        with self.assertRaises(ValueError):
+            create_storage_class('')
