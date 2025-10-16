@@ -26,11 +26,55 @@ INSTALLED_APPS = [
     'special_storages',
 ]
 
+
+# example
+# settings.py
+
+```
 AWS_STORAGE_BUCKET_NAME = "main-bucket"
 COURSE_IMPORT_EXPORT_BUCKET = "import-export-bucket"
 
-SPECIAL_STORAGES = {
-    "import_export": "special_storages.s3.ImportExportS3Storage",
-    "analytics": "special_storages.s3.AnalyticsS3Storage",
+STORAGES = {
+    # Default file storage
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+
+    # Static files
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+
+    # Import/export-specific S3 storage (using your custom base class)
+    "import_export": {
+        "BACKEND": "special_storages.s3.ImportExportS3Storage",
+        "OPTIONS": {
+            "custom_domain": None,
+            "querystring_auth": True,
+        },
+    },
+
+    # Analytics-specific S3 storage
+    "analytics": {
+        "BACKEND": "special_storages.s3.AnalyticsS3Storage",
+        "OPTIONS": {
+            "custom_domain": None,
+        },
+    },
 }
+
+views.py
+
+from django.conf import settings
+from special_storages.base import BaseSpecialS3Storage
+
+class ImportExportS3Storage(BaseSpecialS3Storage):
+    setting_name = "COURSE_IMPORT_EXPORT_BUCKET"
+
+
+class AnalyticsS3Storage(BaseSpecialS3Storage):
+    setting_name = "ANALYTICS_BUCKET"
+
+```
+
 
