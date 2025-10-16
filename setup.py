@@ -7,6 +7,6 @@ setup(
     install_requires=[
         "django>=4.2",
         "django-storages>=1.14.3",  # ✅ this is the key dependency
-        "boto3>=1.28.0",            # optional, but usually required for S3
+        "boto3>=1.28.0",  # optional, but usually required for S3
     ],
 )
