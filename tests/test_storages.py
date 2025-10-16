@@ -1,8 +1,7 @@
 from django.test import TestCase, override_settings
-from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
-from smart_storages import BaseSpecialS3Storage
+from smart_storages.s3_backend import BaseSpecialS3Storage
 
 
 class ImportExportS3Storage(BaseSpecialS3Storage):
@@ -34,7 +33,10 @@ class TestSpecialStorages(TestCase):
         storage = ImportExportS3Storage()
         self.assertEqual(storage.bucket_name, "import-export-bucket")
 
-    @override_settings(ANALYTICS_BUCKET="analytics-bucket")
+    @override_settings(
+        ANALYTICS_BUCKET="analytics-bucket",
+        AWS_STORAGE_BUCKET_NAME="default-bucket",
+    )
     def test_multiple_subclasses_can_have_different_buckets(self):
         """
         Each subclass should independently use its own bucket setting.

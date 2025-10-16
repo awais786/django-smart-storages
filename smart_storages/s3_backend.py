@@ -12,9 +12,11 @@ class BaseSpecialS3Storage(S3Boto3Storage):
     setting_name = None  # subclasses must define this
 
     def __init__(self, **kwargs):
-        # Resolve bucket name from Django settings or fallback
-        bucket_name = setting(self.setting_name, settings.AWS_STORAGE_BUCKET_NAME)
-
+        # Explicitly resolve bucket name from Django settings or fallback
+        if self.setting_name and hasattr(settings, self.setting_name):
+            bucket_name = getattr(settings, self.setting_name)
+        else:
+            bucket_name = getattr(settings, "AWS_STORAGE_BUCKET_NAME", None)
         # Merge default options with user-supplied ones
         options = {
             "bucket_name": bucket_name,
