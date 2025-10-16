@@ -18,21 +18,27 @@ Easy to extend for any specialized storage use case
 
 # Configuration
 
-In your Django settings:
+In your Django settings, add the relevant apps:
+
+```python
+# settings.py
 
 INSTALLED_APPS = [
-
     'storages',
     'special_storages',
 ]
+```
 
+## Example: Configuring Multiple Storages
 
-# example
+Add your bucket names and the STORAGES setting:
+
+```python
 # settings.py
 
-```
 AWS_STORAGE_BUCKET_NAME = "main-bucket"
 COURSE_IMPORT_EXPORT_BUCKET = "import-export-bucket"
+ANALYTICS_BUCKET = "analytics-bucket"
 
 STORAGES = {
     # Default file storage
@@ -62,19 +68,23 @@ STORAGES = {
         },
     },
 }
+```
 
-views.py
+## Example: Custom Storage Classes
 
-from django.conf import settings
+Define specialized storage classes in your code (e.g., `views.py` or a separate `storages.py`):
+
+```python
+# views.py (or storages.py)
+
 from special_storages.base import BaseSpecialS3Storage
 
 class ImportExportS3Storage(BaseSpecialS3Storage):
     setting_name = "COURSE_IMPORT_EXPORT_BUCKET"
 
-
 class AnalyticsS3Storage(BaseSpecialS3Storage):
     setting_name = "ANALYTICS_BUCKET"
-
 ```
 
-
+> **Note:**  
+> You can place these custom storage classes in any appropriate module (such as `storages.py`), and reference them in your `STORAGES` Django setting.
