@@ -56,3 +56,28 @@ class TestSpecialStorages(TestCase):
         storage = ImportExportS3Storage(querystring_auth=False)
         self.assertFalse(storage.querystring_auth)
         self.assertEqual(storage.bucket_name, "import-bucket")
+
+    @override_settings(AWS_STORAGE_BUCKET_NAME="acl-bucket")
+    def test_acl_can_be_customized(self):
+        """
+        The default_acl parameter should be passed through and respected.
+        """
+        # Explicitly set ACL
+        storage = ImportExportS3Storage(default_acl="public-read")
+        self.assertEqual(storage.bucket_name, "acl-bucket")
+        self.assertEqual(storage.default_acl, "public-read")
+
+        # If ACL not provided, it should default to None or library default
+        storage_default = ImportExportS3Storage()
+        # S3Boto3Storage defaults default_acl=None (uses AWS default)
+        self.assertIsNone(storage_default.default_acl)
+
+    @override_settings(COURSE_IMPORT_EXPORT_BUCKET="secure-bucket")
+    def test_combined_overrides_with_acl(self):
+        """
+        Verify that ACL and querystring_auth can both be customized together.
+        """
+        storage = ImportExportS3Storage(default_acl="private", querystring_auth=False)
+        self.assertEqual(storage.bucket_name, "secure-bucket")
+        self.assertEqual(storage.default_acl, "private")
+        self.assertFalse(storage.querystring_auth)
