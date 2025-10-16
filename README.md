@@ -25,7 +25,7 @@ In your Django settings, add the relevant apps:
 
 INSTALLED_APPS = [
     'storages',
-    'special_storages',
+    'smart_storages',
 ]
 ```
 
