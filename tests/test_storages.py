@@ -1,83 +1,61 @@
-from django.test import TestCase, override_settings
+# tests/test_storages.py
+import os
+from django.test import TestCase
+from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from smart_storages.s3_backend import BaseSpecialS3Storage
 
+# Ensure Django settings are configured for standalone test runs
+if not settings.configured:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smart_storages.tests.settings")
 
 class ImportExportS3Storage(BaseSpecialS3Storage):
-    storage_key = "COURSE_IMPORT_EXPORT_BUCKET"
-
+    storage_key = "import_export"
 
 class AnalyticsS3Storage(BaseSpecialS3Storage):
-    storage_key = "ANALYTICS_BUCKET"
+    storage_key = "analytics"
 
+class DefaultsS3Storage(AnalyticsS3Storage):
+    storage_key = "none"
 
 class TestSpecialStorages(TestCase):
-    @override_settings(AWS_STORAGE_BUCKET_NAME="default-bucket")
     def test_base_storage_uses_default_bucket(self):
-        """
-        If the specific bucket setting is missing, BaseSpecialS3Storage
-        should fall back to AWS_STORAGE_BUCKET_NAME.
-        """
-        storage = ImportExportS3Storage()
+        """Fallback to AWS_STORAGE_BUCKET_NAME if specific bucket setting is missing."""
+        storage = DefaultsS3Storage()
         self.assertIsInstance(storage, S3Boto3Storage)
-        self.assertEqual(storage.bucket_name, "default-bucket")
+        self.assertEqual(storage.bucket_name, settings.AWS_STORAGE_BUCKET_NAME)
         self.assertTrue(storage.querystring_auth)
 
-    @override_settings(COURSE_IMPORT_EXPORT_BUCKET="import-export-bucket")
     def test_custom_bucket_is_used(self):
-        """
-        The class should pick up its bucket name from the setting defined
-        in `storage_key`.
-        """
+        """The class should pick up its bucket name from the STORAGES dict."""
         storage = ImportExportS3Storage()
-        self.assertEqual(storage.bucket_name, "import-export-bucket")
+        self.assertEqual(storage.bucket_name, "import_export")
 
-    @override_settings(
-        ANALYTICS_BUCKET="analytics-bucket",
-        AWS_STORAGE_BUCKET_NAME="default-bucket",
-    )
     def test_multiple_subclasses_can_have_different_buckets(self):
-        """
-        Each subclass should independently use its own bucket setting.
-        """
+        """Each subclass can have its own bucket."""
         export_storage = ImportExportS3Storage()
         analytics_storage = AnalyticsS3Storage()
-
         self.assertNotEqual(export_storage.bucket_name, analytics_storage.bucket_name)
-        self.assertEqual(export_storage.bucket_name, "default-bucket")  # falls back
-        self.assertEqual(analytics_storage.bucket_name, "analytics-bucket")
+        self.assertEqual(export_storage.bucket_name, settings.STORAGES["import_export"]["OPTIONS"]["bucket_name"])
+        self.assertEqual(analytics_storage.bucket_name, settings.STORAGES["analytics"]["OPTIONS"]["bucket_name"])
 
-    @override_settings(COURSE_IMPORT_EXPORT_BUCKET="import-bucket")
     def test_init_allows_overriding_default_kwargs(self):
-        """
-        Users can override default kwargs such as querystring_auth.
-        """
+        """User-provided kwargs override defaults."""
         storage = ImportExportS3Storage(querystring_auth=False)
         self.assertFalse(storage.querystring_auth)
-        self.assertEqual(storage.bucket_name, "import-bucket")
+        self.assertEqual(storage.bucket_name, settings.STORAGES["import_export"]["OPTIONS"]["bucket_name"])
 
-    @override_settings(AWS_STORAGE_BUCKET_NAME="acl-bucket")
     def test_acl_can_be_customized(self):
-        """
-        The default_acl parameter should be passed through and respected.
-        """
-        # Explicitly set ACL
+        """Custom ACLs are respected."""
         storage = ImportExportS3Storage(default_acl="public-read")
-        self.assertEqual(storage.bucket_name, "acl-bucket")
         self.assertEqual(storage.default_acl, "public-read")
 
-        # If ACL not provided, it should default to None or library default
         storage_default = ImportExportS3Storage()
-        # S3Boto3Storage defaults default_acl=None (uses AWS default)
         self.assertIsNone(storage_default.default_acl)
 
-    @override_settings(COURSE_IMPORT_EXPORT_BUCKET="secure-bucket")
     def test_combined_overrides_with_acl(self):
-        """
-        Verify that ACL and querystring_auth can both be customized together.
-        """
+        """ACL and querystring_auth can both be customized."""
         storage = ImportExportS3Storage(default_acl="private", querystring_auth=False)
-        self.assertEqual(storage.bucket_name, "secure-bucket")
         self.assertEqual(storage.default_acl, "private")
         self.assertFalse(storage.querystring_auth)
