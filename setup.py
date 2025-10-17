@@ -14,7 +14,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/awais786/django-smart-storages",
     author="Awais Qureshi",
-    author_email="awais.qureshi@arbisoft.com",
+    author_email="awais786@hotmail.com",
     license="MIT",  # Assuming MIT License
 
     # Define the required Python version
