@@ -6,6 +6,7 @@ setup(
     packages=find_packages(include=["smart_storages", "smart_storages.*"]),
     install_requires=[
         "django-storages>=1.14.3",  # S3 backend dependency
+        "boto3>=1.28.0",
     ],
     classifiers=[
         "Framework :: Django",
