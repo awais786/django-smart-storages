@@ -9,6 +9,7 @@ USE_TZ = True
 AWS_STORAGE_BUCKET_NAME = "default-bucket"
 AWS_QUERYSTRING_AUTH = False
 AWS_DEFAULT_ACL = "private"
+AWS_S3_REGION_NAME = "us-east-1"  # Or any valid region name
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=3600"}
 
 INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "storages", "smart_storages"]
