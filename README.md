@@ -24,8 +24,7 @@ In your Django settings, add the relevant apps:
 # settings.py
 
 INSTALLED_APPS = [
-    'storages',
-    'smart_storages',
+    'storages',    # this is for django-storages
 ]
 ```
 ## Example: Custom Storage Classes
