@@ -84,7 +84,7 @@ STORAGES = {
 ```
 
 # Example 1: Saving directly to S3 via FileField
-# This will automatically use the given bucket configured in ImportExportS3.
+## This will automatically use the given bucket configured in ImportExportS3.
 
 ```
 class PublicImage(models.Model):
@@ -92,7 +92,7 @@ class PublicImage(models.Model):
 ```
 
 # Example 2: Saving a file via model's save() method
-# Useful if you need to process or manipulate the file before uploading.
+## Useful if you need to process or manipulate the file before uploading.
 ```
 class PublicImage(models.Model):
     file = models.FileField()
@@ -110,7 +110,7 @@ class PublicImage(models.Model):
 ```
 
 # Example 3: Uploading a file from a remote URL (binary download or streaming)
-# Useful for fetching external content and storing it directly in S3.
+## Useful for fetching external content and storing it directly in S3.
 
 ```
 import requests
