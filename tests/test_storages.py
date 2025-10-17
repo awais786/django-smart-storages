@@ -10,14 +10,18 @@ from smart_storages.s3_backend import BaseSpecialS3Storage
 if not settings.configured:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smart_storages.tests.settings")
 
+
 class ImportExportS3Storage(BaseSpecialS3Storage):
     storage_key = "import_export"
+
 
 class AnalyticsS3Storage(BaseSpecialS3Storage):
     storage_key = "analytics"
 
+
 class DefaultsS3Storage(AnalyticsS3Storage):
     storage_key = "none"
+
 
 class TestSpecialStorages(TestCase):
     def test_base_storage_uses_default_bucket(self):
@@ -25,7 +29,9 @@ class TestSpecialStorages(TestCase):
         storage = DefaultsS3Storage()
         self.assertIsInstance(storage, S3Boto3Storage)
         self.assertEqual(storage.bucket_name, settings.AWS_STORAGE_BUCKET_NAME)
-        self.assertTrue(storage.querystring_auth)
+        self.assertFalse(storage.querystring_auth)
+        self.assertEqual(storage.default_acl, "private")
+        self.assertEqual(storage.object_parameters, {"CacheControl": "max-age=3600"})
 
     def test_custom_bucket_is_used(self):
         """The class should pick up its bucket name from the STORAGES dict."""
@@ -50,9 +56,6 @@ class TestSpecialStorages(TestCase):
         """Custom ACLs are respected."""
         storage = ImportExportS3Storage(default_acl="public-read")
         self.assertEqual(storage.default_acl, "public-read")
-
-        storage_default = ImportExportS3Storage()
-        self.assertIsNone(storage_default.default_acl)
 
     def test_combined_overrides_with_acl(self):
         """ACL and querystring_auth can both be customized."""

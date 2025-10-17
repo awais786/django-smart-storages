@@ -14,7 +14,12 @@ class BaseSpecialS3Storage(S3Boto3Storage):
         # Start with sane defaults
         options = {"querystring_auth": True}
         bucket_name = None
-        
+        options = {
+            "querystring_auth": getattr(settings, "AWS_QUERYSTRING_AUTH", True),
+            "default_acl": getattr(settings, "AWS_DEFAULT_ACL", None),
+            "object_parameters": getattr(settings, "AWS_S3_OBJECT_PARAMETERS", {}),
+        }
+
         # 1. Try STORAGES dict
         if hasattr(settings, "STORAGES") and self.storage_key:
             storage_conf = settings.STORAGES.get(self.storage_key, {})
