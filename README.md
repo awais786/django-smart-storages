@@ -28,6 +28,22 @@ INSTALLED_APPS = [
     'smart_storages',
 ]
 ```
+## Example: Custom Storage Classes
+
+Define specialized storage classes in your code (e.g., `views.py` or a separate `storages.py`):
+
+```python
+# views.py (or storages.py)
+
+from smart_storages import BaseSpecialS3Storage
+
+class ImportExportS3Storage(BaseSpecialS3Storage):
+    storage_key = "import_export"
+
+class AnalyticsS3Storage(BaseSpecialS3Storage):
+    storage_key = "analytics"
+```
+
 
 ## Example: Configuring Multiple Storages
 
@@ -37,8 +53,6 @@ Add your bucket names and the STORAGES setting:
 # settings.py
 
 AWS_STORAGE_BUCKET_NAME = "main-bucket"
-COURSE_IMPORT_EXPORT_BUCKET = "import-export-bucket"
-ANALYTICS_BUCKET = "analytics-bucket"
 
 STORAGES = {
     # Default file storage
@@ -51,7 +65,7 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 
-    # Import/export-specific S3 storage (using your custom base class)
+    # Import-export-specific S3 storage (using your custom base class)
     "import_export": {
         "BACKEND": "special_storages.s3.ImportExportS3Storage",
         "OPTIONS": {
@@ -70,21 +84,17 @@ STORAGES = {
 }
 ```
 
-## Example: Custom Storage Classes
+## Example: Usage
 
-Define specialized storage classes in your code (e.g., `views.py` or a separate `storages.py`):
-
-```python
-# views.py (or storages.py)
-
-from special_storages.base import BaseSpecialS3Storage
-
-class ImportExportS3Storage(BaseSpecialS3Storage):
-    setting_name = "COURSE_IMPORT_EXPORT_BUCKET"
-
-class AnalyticsS3Storage(BaseSpecialS3Storage):
-    setting_name = "ANALYTICS_BUCKET"
 ```
+# it will save the image in given bucket.
+class PublicImage(models.Model):
+    file = models.FileField(storage=ImportExportS3())
+
+
+```
+
+
 
 > **Note:**  
 > You can place these custom storage classes in any appropriate module (such as `storages.py`), and reference them in your `STORAGES` Django setting.
