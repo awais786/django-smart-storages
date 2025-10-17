@@ -1,6 +1,5 @@
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
-from storages.utils import setting
 
 
 class BaseSpecialS3Storage(S3Boto3Storage):
