@@ -17,10 +17,19 @@ INSTALLED_APPS = ["django.contrib.auth", "django.contrib.contenttypes", "storage
 STORAGES = {
     "import_export": {
         "BACKEND": "tests.test_storages.ImportExportS3Storage",
-        "OPTIONS": {"custom_domain": None, "querystring_auth": True, "bucket_name": "import_export"},
+        "OPTIONS": {
+            "custom_domain": None,
+            "querystring_auth": True,
+            "bucket_name": "import_export",
+            "region_name": "us-east-2"
+        },
     },
     "analytics": {
         "BACKEND": "tests.test_storages.AnalyticsS3Storage",
-        "OPTIONS": {"custom_domain": None, "bucket_name": "analytics"},
+        "OPTIONS": {
+            "custom_domain": None,
+            "bucket_name": "analytics",
+            "region_name": "us-east-2"
+        },
     },
 }
